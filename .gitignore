@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.DS_Store
+.travis.yml
+
+build/
+dev/
+
+*.zip
+*.crx
+*.pem
+*.pyc
+update.xml

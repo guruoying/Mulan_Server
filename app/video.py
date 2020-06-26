@@ -3,6 +3,9 @@ import functools
 import os
 import sys
 import you_get
+from .images.get_frame import get_frames
+from .images.extractor import extract_images
+from flask_cors import CORS
 
 from flask import (
     Blueprint, request
@@ -12,7 +15,6 @@ from flask import jsonify
 from app.db import get_db
 
 server = Blueprint('video', __name__, url_prefix='/video')
-
 
 def is_exists(url):
     db = get_db()
@@ -41,8 +43,9 @@ def generate_caption(video_path):
 
 #生成视频截图
 def generate_image(viedo_path):
-    image = ""
-    return image
+    img_dir = extract_images(viedo_path)
+    #img_dir = '/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo'
+    return get_frames(img_dir)
 
 
 def getKey(a):
@@ -64,7 +67,7 @@ def get_image(img_local_paths):
                 img_streams.append(img_stream)
     return img_streams
 
-
+CORS(server)
 @server.route('/manager', methods=('GET', 'POST'))
 def manager():
     if request.method == 'POST':
@@ -94,6 +97,7 @@ def manager():
             video_path = download_video(url)
             caption = generate_caption(video_path)
             image = generate_image(video_path)
+            #image = generate_image('/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo.mp4')
             db.execute(
                 'INSERT INTO video (video_url, video_filepath, video_imagepath) VALUES (?, ?, ?)',
                 (url, video_path, image)
