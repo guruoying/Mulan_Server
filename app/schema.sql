@@ -1,40 +1,41 @@
-DROP TABLE IF EXISTS user_table;
-DROP TABLE IF EXISTS account_table;
-DROP TABLE IF EXISTS video_table;
-DROP TABLE IF EXISTS image_table;
-DROP TABLE IF EXISTS caption_table;
+DROP TABLE IF EXISTS account;
+DROP TABLE IF EXISTS video;
+DROP TABLE IF EXISTS caption;
+DROP TABLE IF EXISTS history;
+DROP TABLE IF EXISTS keywords;
 
 
-CREATE TABLE user_table (
-  userid VARCHAR(50) primary key,
-  accountid VARCHAR(50) not null,
-  username VARCHAR(50) not null,
-  password VARCHAR(50) not null,
-  salt VARCHAR(50) not null
+create table account (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    history_id INTEGER not null,
+    code VARCHAR(50) not null
 );
 
-create table account_table (
-   account_id VARCHAR(50) primary key,
-   history_id VARCHAR(50) not null,
-   nickname VARCHAR(50) not null);
-
-create table video_table (
-  videoid VARCHAR(50) primary key AUTOINCREMENT,
-  video_url VARCHAR(150) not null,
-  video_filepath VARCHAR(150) not null,
-  video_imagepath VARCHAR(150) not null
+create table video (
+    video_id INTEGER primary key AUTOINCREMENT,
+    url VARCHAR(150) not null,
+    file_path VARCHAR(150) not null,
+    imagepath VARCHAR(150) not null
 );
 
-create table image_table(
- imageid VARCHAR(50) primary key AUTOINCREMENT,
- imagepath VARCHAR(150) not null,
- videoid VARCHAR(50) references video_table(videoid) on delete cascade on update cascade
+create table caption(
+    caption_id INTEGER primary key AUTOINCREMENT,
+    video_id INTEGER references video(video_id) on delete cascade on update cascade,
+    start_time int not null,
+    end_time int not null,
+    content VARCHAR(100) not null,
+    count INT not null check(count >= 0)
 );
 
-create table caption_table(
- captionid VARCHAR(50) primary key AUTOINCREMENT,
- videoid VARCHAR(50) references video_table(videoid) on delete cascade on update cascade,
- content VARCHAR(100) not null,
- count INT not null check(count > 0),
- timestamp INT not null check(timestamp > 0)
+create table history (
+    id INTEGER primary key AUTOINCREMENT,
+    video_id INTEGER references video(video_id) on delete cascade on update cascade,
+    history_id INTEGER references account(history_id) on delete cascade on update cascade
+);
+
+create table keywords(
+    _id INTEGER primary key AUTOINCREMENT,
+    account_id INTEGER references account(history_id) on delete cascade on update cascade,
+    caption_id INTEGER references caption(caption_id) on delete cascade on update cascade,
+    video_id INTEGER references video(video_id) on delete cascade on update cascade
 );
