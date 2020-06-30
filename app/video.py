@@ -43,9 +43,9 @@ def generate_caption(video_path):
 
 #生成视频截图
 def generate_image(viedo_path):
-    img_dir = extract_images(viedo_path)
+    img_local_paths = extract_images(viedo_path)
     #img_dir = '/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo'
-    return get_frames(img_dir)
+    return get_frames(img_local_paths), img_local_paths
 
 
 def getKey(a):
@@ -54,18 +54,7 @@ def getKey(a):
 
 
 def get_image(img_local_paths):
-    img_streams = []
-    paths = os.listdir(img_local_paths)
-    paths.sort(key=getKey)
-    for img_local_path in paths:
-        if '.jpg' in img_local_path:
-            path = img_local_paths + img_local_path
-            with open(path, 'rb') as img_f:
-                img_stream = img_f.read()
-                img_stream = base64.b64encode(img_stream)
-                img_stream = str(img_stream, "utf-8")
-                img_streams.append(img_stream)
-    return img_streams
+    return get_frames(img_local_paths) 
 
 CORS(server)
 @server.route('/manager', methods=('GET', 'POST'))
@@ -96,11 +85,11 @@ def manager():
         else:
             video_path = download_video(url)
             caption = generate_caption(video_path)
-            image = generate_image(video_path)
-            #image = generate_image('/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo.mp4')
+            image, img_local_paths = generate_image(video_path)
+            #image, img_local_paths = generate_image('/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo.mp4')
             db.execute(
                 'INSERT INTO video (video_url, video_filepath, video_imagepath) VALUES (?, ?, ?)',
-                (url, video_path, image)
+                (url, video_path, img_local_paths)
             )
             db.commit()
             video_id = db.execute(
@@ -108,7 +97,7 @@ def manager():
             ).fetchone()[0]
             db.execute(
                 'INSERT INTO video (imagepath, videoid) VALUES (?, ?)',
-                (image, video_id)
+                (img_local_paths, video_id)
             )
             # 此处字幕的数据库插入根据返回值修改
             # db.execute(
