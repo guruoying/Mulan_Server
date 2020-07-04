@@ -19,8 +19,8 @@ def get_caption():
     end = []
     text = []
     for i in range(0, len(subs)):
-        start.append(subs[i].start.seconds)
-        end.append(subs[i].end.seconds)
+        start.append(subs[i].start.seconds + 60 * subs[i].start.minutes)
+        end.append(subs[i].end.seconds + 60 * subs[i].end.minutes)
         text.append(subs[i].text)
 
     if request.method == 'GET':
