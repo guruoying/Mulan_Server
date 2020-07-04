@@ -48,17 +48,11 @@ def generate_caption(video_path):
     caption = ""
     return caption
 
-<<<<<<< HEAD
-#生成视频截图
-def generate_image(viedo_path):
-    img_local_paths = extract_images(viedo_path)
-=======
 # 生成视频截图
 
 
-def generate_image(video_path):
-    img_dir = extract_images(video_path)
->>>>>>> feat(caption): add caption test file
+def generate_image(viedo_path):
+    img_local_paths = extract_images(viedo_path)
     #img_dir = '/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo'
     return get_frames(img_local_paths), img_local_paths
 
@@ -69,7 +63,7 @@ def getKey(a):
 
 
 def get_image(img_local_paths):
-    return get_frames(img_local_paths) 
+    return get_frames(img_local_paths)
 
 
 CORS(server)
@@ -102,7 +96,6 @@ def manager():
                 subtitle[timestamp] = content
             return jsonify(subtitle=subtitle,
                            image=image)
-<<<<<<< HEAD
         else:
             video_path = download_video(url)
             caption = generate_caption(video_path)
@@ -114,7 +107,8 @@ def manager():
             )
             db.commit()
             video_id = db.execute(
-                'SELECT video_table FROM video_table WHERE video_url = ?', (url,)
+                'SELECT video_table FROM video_table WHERE video_url = ?', (
+                    url,)
             ).fetchone()[0]
             db.execute(
                 'INSERT INTO video (imagepath, videoid) VALUES (?, ?)',
@@ -128,35 +122,6 @@ def manager():
             db.commit()
             return jsonify(caption=caption,
                            image=image)
-=======
-    else:
-        # video_path = download_video(url)
-        # caption = generate_caption(video_path)
-        # image = generate_image(video_path)
-        image = generate_image(
-            '/Users/sxz/code/2020/software/google_girls_hackathon/video_substitude/demo')
-        # db.execute(
-        #     'INSERT INTO video (video_url, video_filepath, video_imagepath) VALUES (?, ?, ?)',
-        #     (url, video_path, image)
-        # )
-        # db.commit()
-        # video_id = db.execute(
-        #     'SELECT video_table FROM video_table WHERE video_url = ?', (
-        #         url,)
-        # ).fetchone()[0]
-        # db.execute(
-        #     'INSERT INTO video (imagepath, videoid) VALUES (?, ?)',
-        #     (image, video_id)
-        # )
-        # 此处字幕的数据库插入根据返回值修改
-        # db.execute(
-        #     'INSERT INTO caption_table (videoid, content, count, timestamp) VALUES (?, ?, ?, ?)',
-        #     ()
-        # )
-        # db.commit()
-        return jsonify(
-            image=image)
->>>>>>> feat(caption): add caption test file
 
 #
 # @server.route('/download', methods=('GET', 'POST'))
