@@ -15,7 +15,7 @@ create table video (
     video_id INTEGER primary key AUTOINCREMENT,
     url VARCHAR(150) not null,
     file_path VARCHAR(150) not null,
-    imagepath VARCHAR(150) not null
+    imagepath VARCHAR(150)
 );
 
 create table caption(

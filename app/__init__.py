@@ -31,7 +31,6 @@ def create_app(test_config=None):
     app.register_blueprint(auth.server)
     app.register_blueprint(video.server)
     app.register_blueprint(text.server)
-    app.register_blueprint(caption.server)
 
     # a simple page that says hello
     @app.route('/hello')

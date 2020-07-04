@@ -15,3 +15,8 @@ schema.sql是数据库初始化，在命令行运行：
 
 ## 运行程序：
 `python manager.py`
+
+## video.py中的路径是video存储路径
+def generate_path(url):
+    # 这个路径需要更换
+    video_path = "/Users/guruoying/video"
