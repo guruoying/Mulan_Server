@@ -21,14 +21,14 @@ def get_frames(img_dir):
 
 
 def getTime(a):
-    key = int(a.split('_')[1].split('.')[0])
+    key = int(a.split('_')[-1].split('.')[0])
     return key
 
 
-def return_img_stream(img_local_paths='frames/'):
+def return_img_stream(img_local_paths):
     img_streams = []
     times = []
-    paths = os.listdir(img_local_paths)
+    paths = [img for img in os.listdir(img_local_paths) if '.jpg' in img]
     paths.sort(key=getTime)
     print(paths)
     for img_local_path in paths:

@@ -49,7 +49,7 @@ def download_video(url):
     for line in info:  # 按行遍历
         l = str(line)
         if l.startswith("Downloading"):
-            end = l.find(".flv") + 5
+            end = l.find(".flv") + 4
             file_name = l[12: end]
             return path + "/" + file_name
 
