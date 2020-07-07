@@ -31,9 +31,10 @@ def is_video_exists(url):
 # 生成视频存贮路径
 def generate_path(url):
     # 这个路径需要更换
-    video_path = "/Users/guruoying/video"
+    video_path = "/Users/sxz/code/2020/software/google_girls_hackathon/video_substitude"
     if not os.path.exists(video_path):
-        os.makedirs("/Users/guruoying/video")
+        os.makedirs(
+            "/Users/sxz/code/2020/software/google_girls_hackathon/video_substitude")
     return video_path
 
 
@@ -55,14 +56,24 @@ def download_video(url):
 
 
 # 生成字幕
-def generate_caption(video_path):
-    caption = ""
-    return caption
+def generate_caption(video_path, video_name, chinese, output_path):
+    # 默认为中文, 仅支持中英文
+    if chinese == True:
+        language = "cmn_hans_cn"
+    else:
+        language = "en"
+
+    command = "autosub -i " + "\"" + video_path + "/" + video_name + "\"" +\
+        " -ap -k -S " + language + " -of src -F srt -o " + output_path
+    r = os.popen(command)
+    video_name = video_name.rstrip(".flv")
+
+    return output_path + "/" + video_name + "." + language + ".srt"
 
 
 # 生成视频截图
-def generate_image(viedo_path):
-    img_local_paths = extract_images(viedo_path)
+def generate_image(video_path):
+    img_local_paths = extract_images(video_path)
     # img_dir = '/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo'
     return get_frames(img_local_paths), img_local_paths
 
