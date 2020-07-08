@@ -25,7 +25,7 @@ def get_caption():
 
     if request.method == 'GET':
         return jsonify(video_id="1",
-                       start_time=start, end_time=end, context=text, count="0", emphasis="false")
+                       start_time=start, end_time=end, context=text, count="0")
 
 
 if __name__ == "__main__":

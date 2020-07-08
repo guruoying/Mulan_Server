@@ -2,6 +2,7 @@ import base64
 import functools
 import os
 import sys
+import asyncio
 
 import pysrt
 import you_get
@@ -31,10 +32,10 @@ def is_video_exists(url):
 # 生成视频存贮路径
 def generate_path(url):
     # 这个路径需要更换
-    video_path = "/Users/sxz/code/2020/software/google_girls_hackathon/video_substitude"
+    video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle"
     if not os.path.exists(video_path):
         os.makedirs(
-            "/Users/sxz/code/2020/software/google_girls_hackathon/video_substitude")
+            "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle")
     return video_path
 
 
@@ -52,20 +53,20 @@ def download_video(url):
         if l.startswith("Downloading"):
             end = l.find(".flv") + 4
             file_name = l[12: end]
-            return path + "/" + file_name
+            return path + "/" + file_name  # video_path contains filename
 
 
 # 生成字幕
-def generate_caption(video_path, video_name, chinese, output_path):
+def generate_caption(video_path, chinese=True, output_path="/Users/sxz/code/code-2020/software/google_girls_hackathon/subtitle"):
     # 默认为中文, 仅支持中英文
     if chinese == True:
         language = "cmn_hans_cn"
     else:
         language = "en"
-
-    command = "autosub -i " + "\"" + video_path + "/" + video_name + "\"" +\
+    command = "autosub -i " + "\"" + video_path + "\"" +\
         " -ap -k -S " + language + " -of src -F srt -o " + output_path
     r = os.popen(command)
+    video_name = video_path.split("/")[-1]
     video_name = video_name.rstrip(".flv")
 
     return output_path + "/" + video_name + "." + language + ".srt"
@@ -96,7 +97,7 @@ def download():
         url = request.args['url']
         print(url)
         db = get_db()
-        if not is_video_exists(url):
+        if not is_video_exists(url):  # 建议加一个并且在路径中存在的条件
             video_path = download_video(url)
             print(video_path, url)
             db.execute(
@@ -143,16 +144,16 @@ def get_caption():
             'SELECT video_id FROM video WHERE url = ?', (url,)
         ).fetchone()
         if video_id is not None:
-            caption_rows = db.execute(
-                'SELECT start_time,end_time,content,count FROM caption WHERE video_id = ? ORDER BY start_time', (
-                    video_id[0],)
+            caption_rows = db.execute('SELECT start_time, end_time, content, count FROM caption WHERE video_id= ? ORDER BY start_time', (
+                video_id[0],)
             )
+            rows = caption_rows.fetchall()
             start = []
             end = []
             text = []
             count = []
-            if caption_rows is not None:
-                for caption_row in caption_rows:
+            if rows != []:
+                for caption_row in rows:
                     start.append(caption_row[0])
                     end.append(caption_row[1])
                     text.append(caption_row[2])
@@ -161,6 +162,23 @@ def get_caption():
                                start_time=start, end_time=end, context=text, count=count)
             else:
                 # 这里实现生成字幕
+                # video_path = db.execute(
+                #     'SELECT file_path FROM video WHERE url = ?', (url,)
+                # ).fetchone()[0]
+                video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle/1.flv"
+                caption_path = generate_caption(video_path)
+                subs = pysrt.open(caption_path)
+                for i in range(0, len(subs)):
+                    start.append(subs[i].start.seconds +
+                                 60 * subs[i].start.minutes)
+                    end.append(subs[i].end.seconds + 60 * subs[i].end.minutes)
+                    text.append(subs[i].text)
 
+                    db.execute(
+                        'INSERT INTO caption (video_id, start_time, end_time, content, count) VALUES (?, ?, ?, ?, 0)',
+                        (video_id[0], start[i], end[i], text[i])
+                    )
                 return jsonify(video_id=video_id[0],
-                               start_time=start, end_time=end, context=text, count=count)
+                               start_time=start, end_time=end, context=text, count="0")
+        else:
+            return "The video has not downloaded!"
