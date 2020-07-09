@@ -18,6 +18,9 @@ from app.db import get_db
 
 server = Blueprint('video', __name__, url_prefix='/video')
 
+VIDEO_PATH = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle"
+SUBTITLE_PATH = "/Users/sxz/code/code-2020/software/google_girls_hackathon/subtitle"
+
 
 def is_video_exists(url):
     db = get_db()
@@ -31,10 +34,9 @@ def is_video_exists(url):
 # 生成视频存贮路径
 def generate_path(url):
     # 这个路径需要更换
-    video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle"
+    video_path = VIDEO_PATH
     if not os.path.exists(video_path):
-        os.makedirs(
-            "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle")
+        os.makedirs(VIDEO_PATH)
     return video_path
 
 
@@ -56,7 +58,7 @@ def download_video(url):
 
 
 # 生成字幕
-def generate_caption(video_path, chinese=True, output_path="/Users/sxz/code/code-2020/software/google_girls_hackathon/subtitle"):
+def generate_caption(video_path, chinese=True, output_path=SUBTITLE_PATH):
     # 默认为中文, 仅支持中英文
     if chinese == True:
         language = "cmn_hans_cn"
