@@ -5,7 +5,6 @@ import sys
 import asyncio
 
 import pysrt
-import you_get
 from .images.get_frame import get_frames
 from .images.extractor import extract_images
 from flask_cors import CORS
@@ -66,16 +65,18 @@ def generate_caption(video_path, chinese=True, output_path="/Users/sxz/code/code
     command = "autosub -i " + "\"" + video_path + "\"" +\
         " -ap -k -S " + language + " -of src -F srt -o " + output_path
     r = os.popen(command)
-    video_name = video_path.split("/")[-1]
-    video_name = video_name.rstrip(".flv")
-
-    return output_path + "/" + video_name + "." + language + ".srt"
+    info = r.readlines()  # 读取命令行的输出到一个list
+    for line in info:  # 按行遍历
+        l = str(line)
+        if l.startswith("你的输出路径是一个目录不是一个文件路径"):
+            video_name = video_path.split("/")[-1]
+            video_name = video_name.rstrip(".flv")
+            return output_path + "/" + video_name + "." + language + ".srt"
 
 
 # 生成视频截图
 def generate_image(video_path):
     img_local_paths = extract_images(video_path)
-    # img_dir = '/Users/zhangqi/Desktop/for_google/girl_hackthon_2020/video_frame/demo'
     return get_frames(img_local_paths), img_local_paths
 
 
@@ -97,7 +98,7 @@ def download():
         url = request.args['url']
         print(url)
         db = get_db()
-        if not is_video_exists(url):  # 建议加一个并且在路径中存在的条件
+        if not is_video_exists(url):
             video_path = download_video(url)
             print(video_path, url)
             db.execute(
@@ -112,7 +113,7 @@ def download():
 
 @server.route('/get_image', methods=('GET', 'POST'))
 def get_images():
-    if request.method == 'POST':
+    if request.method == 'GET':
         url = request.args['url']
         db = get_db()
         image_path = db.execute(
@@ -125,7 +126,7 @@ def get_images():
             video_path = db.execute(
                 'SELECT file_path FROM video WHERE url = ?', (url,)
             ).fetchone()[0]
-            # 这里有bug
+            # video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle/1.flv"
             image, img_local_paths = generate_image(video_path)
             db.execute(
                 'UPDATE video set imagepath = ? WHERE url = ?',
@@ -137,7 +138,7 @@ def get_images():
 
 @server.route('/get_caption', methods=('GET', 'POST'))
 def get_caption():
-    if request.method == 'POST':
+    if request.method == 'GET':
         url = request.args['url']
         db = get_db()
         video_id = db.execute(
@@ -158,14 +159,15 @@ def get_caption():
                     end.append(caption_row[1])
                     text.append(caption_row[2])
                     count.append(caption_row[3])
+                db.commit()
                 return jsonify(video_id=video_id[0],
                                start_time=start, end_time=end, context=text, count=count)
             else:
                 # 这里实现生成字幕
-                # video_path = db.execute(
-                #     'SELECT file_path FROM video WHERE url = ?', (url,)
-                # ).fetchone()[0]
-                video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle/1.flv"
+                video_path = db.execute(
+                    'SELECT file_path FROM video WHERE url = ?', (url,)
+                ).fetchone()[0]
+                # video_path = "/Users/sxz/code/code-2020/software/google_girls_hackathon/video_subtitle/1.flv"
                 caption_path = generate_caption(video_path)
                 subs = pysrt.open(caption_path)
                 for i in range(0, len(subs)):
@@ -178,6 +180,7 @@ def get_caption():
                         'INSERT INTO caption (video_id, start_time, end_time, content, count) VALUES (?, ?, ?, ?, 0)',
                         (video_id[0], start[i], end[i], text[i])
                     )
+                db.commit()
                 return jsonify(video_id=video_id[0],
                                start_time=start, end_time=end, context=text, count="0")
         else:
