@@ -27,10 +27,8 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from . import auth, text, caption, video
-    app.register_blueprint(auth.server)
+    from . import video
     app.register_blueprint(video.server)
-    app.register_blueprint(text.server)
 
     # a simple page that says hello
     @app.route('/hello')

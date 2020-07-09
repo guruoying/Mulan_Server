@@ -13,3 +13,4 @@ dev/
 update.xml
 .vscode
 __pycache__/
+.idea
