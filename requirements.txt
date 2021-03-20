@@ -27,7 +27,7 @@ httpx==0.13.3
 hyperframe==5.2.0
 idna==2.9
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 langcodes==2.0.0
 marisa-trie==0.7.5
 MarkupSafe==1.1.1
