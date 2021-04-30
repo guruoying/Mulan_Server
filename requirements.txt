@@ -43,7 +43,7 @@ python-utils==2.4.0
 pytz==2020.1
 requests==2.24.0
 rfc3986==1.4.0
-rsa==4.6
+rsa==4.7
 six==1.15.0
 sniffio==1.1.0
 some-package==0.1
